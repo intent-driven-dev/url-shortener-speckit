@@ -1,21 +1,26 @@
 <!--
 Sync Impact Report
-Version change: 1.0.0 → 1.1.0
+Version change: 1.1.0 → 1.2.0
 Modified principles: none (no existing principle renamed or redefined)
 Added sections:
-  - Architecture Constraints (new Section 2): runtime/language, link management vs. link
-    resolution module separation, layering (routes → services → domain → repositories),
-    external-dependency policy, JSON file storage, testing-tools exception, .gitignore
-    convention, and escalation-to-architect for unsettled design questions.
+  - Engineering Practices (new section): test-first workflow (acceptance tests derived from
+    spec scenarios, sequenced ahead of implementation tasks; red-before-green per test),
+    Jest as the mandated test framework, 100% branch coverage as a completion gate (line
+    coverage informational only), and the requirement that every task list include test
+    suite changes.
+  - Quality Verification (new section): post-implementation confirmation of every
+    user-facing behavior via curl against the running application, captured as an explicit
+    task in the task list rather than an informal step.
 Removed sections: none
 Deferred / TODO placeholders: none.
 Templates checked for alignment:
-  - .specify/templates/plan-template.md — not modified in this pass; Technical Context /
-    Constitution Check sections should be reviewed against the new Architecture
-    Constraints section on next plan run to confirm they surface module placement
-    (link management vs. link resolution) and layering as explicit gates.
+  - .specify/templates/tasks-template.md — should be reviewed on next tasks run to confirm
+    it sequences acceptance tests ahead of implementation tasks and includes an explicit
+    curl-verification completion task; not modified in this pass.
+  - .specify/templates/plan-template.md — Constitution Check section should be reviewed to
+    confirm it surfaces the Engineering Practices and Quality Verification gates; not
+    modified in this pass.
   - .specify/templates/spec-template.md — not modified; unaffected by this amendment.
-  - .specify/templates/tasks-template.md — not modified; unaffected by this amendment.
 Follow-up TODOs: none.
 -->
 
@@ -128,12 +133,48 @@ external dependencies minimizes supply-chain and upgrade risk for a system whose
 **Escalation**: Design questions that these constraints do not settle MUST be clarified with the
 architect rather than decided unilaterally during a session.
 
+## Engineering Practices
+
+**Test-first workflow**: Every task list MUST begin with acceptance tests derived from the
+governing specification's scenarios, sequenced ahead of the implementation tasks they support.
+Implementation MUST follow a test-driven approach: for each unit of behavior, the test is written
+first, observed to fail for the right reason, and only then made to pass. A task list that
+contains no test suite changes is incomplete and MUST NOT be treated as ready for implementation.
+
+**Test framework**: Jest is the mandated testing framework for this project.
+
+**Coverage gate**: The test suite MUST maintain 100% branch coverage as a completion check. Line
+coverage is tracked but is informational only and MUST NOT block completion on its own.
+
+**Rationale**: Resolution must never fail (Principle III) and short links cannot be recalled once
+published, so regressions must be caught before they reach production, not after. Sequencing
+acceptance tests ahead of implementation tasks keeps every task list anchored to the spec's actual
+scenarios rather than to an implementer's guess at behavior. Branch coverage is the meaningful
+signal because it verifies every decision path — including the failure paths Principle IV requires
+every spec to state — has been exercised; line coverage alone would miss untested branches within
+covered lines.
+
+## Quality Verification
+
+**Post-implementation confirmation**: After implementation, every user-facing behavior MUST be
+confirmed with curl commands run against the running application. This confirmation is a
+completion check, not an informal step, and MUST be captured as its own explicit task in the task
+list rather than assumed to happen incidentally during development.
+
+**Rationale**: Automated tests verify units and branches in isolation; they do not prove the
+assembled system behaves correctly end-to-end from a user's vantage point. Requiring curl-based
+confirmation as a tracked task closes that gap and gives Principle III's guarantee — that
+resolution never fails — a concrete, repeatable check against the real running system rather than
+a mocked or unit-level approximation of it.
+
 ## Governance
 
 This constitution supersedes any conflicting practice, spec, plan, or task in this repository.
 Every specification produced via `/speckit-specify` MUST comply with Principle IV before moving to
 `/speckit-plan`. Every plan or task that touches short link creation or resolution MUST be checked
-against Principles I–III before implementation.
+against Principles I–III before implementation. Every task list produced via `/speckit-tasks` MUST
+comply with the Engineering Practices and Quality Verification sections before implementation
+begins.
 
 **Amendment procedure**: Amendments are made by editing this file directly or via
 `/speckit-constitution`. Any amendment MUST update the Sync Impact Report at the top of this file
@@ -148,4 +189,4 @@ and MUST bump the version per the policy below.
 before implementation begins. Any deviation MUST be justified in writing in the relevant artifact
 or the work MUST be revised to comply.
 
-**Version**: 1.1.0 | **Ratified**: 2026-08-12 | **Last Amended**: 2026-08-12
+**Version**: 1.2.0 | **Ratified**: 2026-08-12 | **Last Amended**: 2026-08-12
