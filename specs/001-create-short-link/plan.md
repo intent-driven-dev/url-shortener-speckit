@@ -124,6 +124,12 @@ business-logic-free `src/shared/storage.js` (research.md §7) so the two modules
 low-level JSON file I/O, never decision-making logic. `data/short-links.json` is the single JSON
 storage file (research.md §3) and is gitignored since it's runtime-generated data, not source.
 
+**Boundary rule for `src/shared/storage.js`**: to keep it business-logic-free, it MUST NOT
+import from `src/link-management/` or `src/link-resolution/`, and MUST NOT branch on the
+*content* of an alias or destination (e.g. format/reachability/self-reference checks) — its only
+job is opaque read/write/atomic-rename of records by key. Any such logic belongs in the calling
+module's `domain/` or `services/` layer instead.
+
 ## Complexity Tracking
 
 *No entries — the Constitution Check above has no violations to justify.*
