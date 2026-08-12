@@ -8,6 +8,14 @@
 
 **Input**: User description: "Help me specify the first slice of the URL shortener: a marketing user submits a destination and receives a short link on our domain, and visiting the short link reaches the destination."
 
+## Clarifications
+
+### Session 2026-08-12
+
+- Q: Should this first slice include any abuse-prevention for the submission endpoint (e.g. rate limiting), or is that explicitly out of scope? → A: Out of scope for this slice — no rate limiting; revisit as a separate future feature.
+- Q: What character set and length should the system-generated alias use? → A: Alphanumeric (a-z, A-Z, 0-9), fixed length of 6-8 characters.
+- Q: Does this slice need to support a specific expected scale (short links / traffic)? → A: No explicit target — assume low-volume/single-team usage (dozens to low hundreds of links); revisit if traffic grows.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Submit a destination and receive a short link (Priority: P1)
@@ -25,8 +33,8 @@ and the marketing user sees the message: *"We couldn't create a short link: the 
 address," "couldn't be reached," or "is already a short link, not a destination."
 
 **Out of scope**: Choosing a custom alias, editing or deleting a short link after creation,
-authentication/authorization, campaign grouping or tagging, and click analytics are all out of
-scope for this slice.
+authentication/authorization, campaign grouping or tagging, click analytics, and abuse prevention
+(e.g. rate limiting the submission endpoint) are all out of scope for this slice.
 
 **Independent Test**: Can be fully tested by submitting a valid, reachable destination URL and
 confirming a short link on the product's domain is returned, without needing any other capability
@@ -106,7 +114,8 @@ found" message appears instead of a broken redirect.
 - **FR-004**: System MUST reject a submitted destination that is itself a short link already
   issued by this system, and MUST NOT create a short link for it.
 - **FR-005**: System MUST generate a unique, system-generated alias for every accepted
-  destination; this slice does not support user-chosen aliases.
+  destination, using alphanumeric characters (a-z, A-Z, 0-9) at a fixed length of 6-8 characters;
+  this slice does not support user-chosen aliases.
 - **FR-006**: System MUST return the complete short link (product domain + alias) to the marketing
   user immediately upon successful creation.
 - **FR-007**: System MUST allow a destination to be submitted more than once, issuing a separate,
@@ -120,8 +129,9 @@ found" message appears instead of a broken redirect.
 
 ### Key Entities
 
-- **Short Link**: A system-generated alias paired with exactly one destination and the product
-  domain. Once created, it resolves to that destination indefinitely.
+- **Short Link**: A system-generated alias (alphanumeric, a-z/A-Z/0-9, fixed length of 6-8
+  characters) paired with exactly one destination and the product domain. Once created, it
+  resolves to that destination indefinitely.
 - **Destination**: The destination URL a marketing user submits. Must be a well-formed, reachable
   http/https URL and must not itself be a short link issued by this system.
 
@@ -130,7 +140,8 @@ found" message appears instead of a broken redirect.
 ### Measurable Outcomes
 
 - **SC-001**: A marketing user submitting a valid destination receives a working short link in
-  under 5 seconds.
+  under 5 seconds, at the low-volume/single-team usage scale this slice targets (dozens to low
+  hundreds of short links).
 - **SC-002**: 100% of short links successfully issued remain resolvable to their original
   destination for as long as the system operates, with no incidental breakage.
 - **SC-003**: 100% of submissions with an invalid, unreachable, or already-shortened destination
@@ -152,3 +163,6 @@ found" message appears instead of a broken redirect.
   independent short link rather than reusing an existing one.
 - "Reachable" means the destination responds to a request within a reasonable timeout; the exact
   timeout and response-code thresholds are an implementation detail for the planning phase.
+- This slice targets low-volume, single-team usage (dozens to low hundreds of short links); no
+  specific scale/throughput target is required. Higher-scale hardening is deferred to a future
+  feature if traffic grows.
