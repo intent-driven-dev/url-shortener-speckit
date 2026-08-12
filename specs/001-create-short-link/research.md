@@ -19,15 +19,20 @@ which covers the destination-reachability check without an HTTP client library.
 
 ## 2. Testing tooling
 
-**Decision**: `node:test` + `node:assert/strict` (both built-in, Node ≥18).
+**Decision**: Jest.
 
-**Rationale**: The constitution names testing tools as the accepted exception to the
-no-major-external-dependencies rule, but Node's built-in test runner removes the need to take the
-exception at all — it supports `describe`/`it`, mocking, and coverage without adding a
-dependency.
+**Rationale**: The constitution (v1.2.0) mandates Jest as this project's test framework and
+requires a 100% branch-coverage completion gate. Jest's built-in `--coverage` (Istanbul) reports
+branch-level coverage without an additional tool, and its mocking utilities (`jest.fn()`,
+`jest.spyOn()`) are needed to force edge-case branches — e.g. the alias-collision retry and the
+`HEAD`→`GET` reachability fallback (§4, §5) — that are otherwise hard to trigger from black-box
+contract tests alone.
 
 **Alternatives considered**:
-- Jest/Vitest — rejected: unnecessary given `node:test` covers this feature's needs.
+- `node:test` + `node:assert/strict` — considered initially as a zero-dependency option that
+  avoids invoking the constitution's testing-tools exception; rejected because the constitution
+  was subsequently amended to explicitly mandate Jest, superseding this preference.
+- Vitest — rejected: unnecessary given Jest is the constitution-mandated choice.
 
 ## 3. Storage mechanism
 
@@ -126,3 +131,28 @@ only the low-level storage I/O (not business logic, not domain rules) keeps the 
 - Fully independent storage per module (e.g. two files kept in sync) — rejected: adds
   synchronization complexity and a new way for Principle III to be violated (drift between the
   two copies) for no benefit at this scale.
+
+## 8. Product domain configuration
+
+**Decision**: A single shared config module (`src/shared/config.js`) exports `PORT` (env var
+`PORT`, default `3000`) and `PRODUCT_DOMAIN` (env var `PRODUCT_DOMAIN`, default
+`` `http://localhost:${PORT}` ``). Both the link-management self-reference check (§6) and the
+`shortLink` value returned on creation (`contracts/api.md`, data-model.md) read `PRODUCT_DOMAIN`
+from this module rather than each computing or hardcoding it independently.
+
+**Rationale**: `{PRODUCT_DOMAIN}` is referenced by data-model.md and contracts/api.md but had no
+defined source. An env var with a `localhost:${PORT}` default is the simplest option that needs no
+new infrastructure: it matches the existing `PORT` env-var pattern (quickstart.md), works
+out-of-the-box for local dev/testing without requiring the env var to be set, and lets a real
+deployment override it with the actual public domain. A single config module avoids the two
+call sites (self-reference detection, response construction) computing this value independently
+and drifting.
+
+**Alternatives considered**:
+- Hardcoding the domain in each call site — rejected: duplicates the value and risks drift between
+  the self-reference check and the returned `shortLink`, which would directly undermine Principle
+  II if they ever disagreed.
+- Deriving the domain from the incoming request's `Host` header at request time — rejected: more
+  flexible but unnecessary complexity for a single-team deployment at this slice's scale, and it
+  would make the self-reference check depend on request context rather than a stable, testable
+  value.

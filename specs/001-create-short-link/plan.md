@@ -27,7 +27,7 @@ the shared storage boundary between the two modules.
 **Storage**: JSON file (`data/short-links.json`), accessed only through the repository layer via
 a shared atomic-write storage utility (research.md §3, §7)
 
-**Testing**: `node:test` + `node:assert/strict` (built-in, research.md §2)
+**Testing**: Jest (constitution-mandated test framework, research.md §2)
 
 **Target Platform**: Any server/host running Node.js ≥20 (Linux in production; local dev on
 macOS)
@@ -56,7 +56,7 @@ Assumptions) — two endpoints, two modules
 | IV. Every Specification States Audience, Failure Path, and Scope | PASS | Already satisfied in `spec.md` (checked at `/speckit-specify` time) for both user stories. |
 | Module separation (link management vs. link resolution) | PASS | Two top-level modules, `src/link-management/` and `src/link-resolution/`, each owning its own routes/services/domain/repositories (research.md §7). The only shared code is a business-logic-free storage utility. |
 | Layering (routes → services → domain → repositories) | PASS | Enforced per module in Project Structure below; domain modules stay framework-free (no `node:http` imports). |
-| No major external dependencies / JSON file storage | PASS | Runtime deps are Node built-ins only (research.md §1); storage is a JSON file behind repositories (research.md §3). `node:test` is used directly rather than invoking the testing-tools exception. |
+| No major external dependencies / JSON file storage | PASS | Runtime deps are Node built-ins only (research.md §1); storage is a JSON file behind repositories (research.md §3). Jest is used as the constitution's testing-tools exception (constitution Engineering Practices). |
 | Interface contracts as markdown tables | PASS | `contracts/api.md` documents both endpoints as markdown tables. |
 
 No violations — Complexity Tracking is not needed.
@@ -100,6 +100,7 @@ src/
 │   └── repositories/
 │       └── link-resolution.repository.js  # findByAlias() — read-only
 └── shared/
+    ├── config.js                 # PORT and PRODUCT_DOMAIN env-var config; single source of truth
     └── storage.js                # Low-level JSON file read/atomic-write/write-queue; no business logic
 
 data/
