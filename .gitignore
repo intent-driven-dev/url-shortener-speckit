@@ -1,6 +1,8 @@
 node_modules/
-npm-debug.log*
-.env
-.env.local
-*.log
 data/short-links.json
+npm-debug.log*
+*.log
+.env
+.env.*
+coverage/
+.DS_Store
