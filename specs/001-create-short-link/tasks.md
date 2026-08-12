@@ -205,3 +205,10 @@ second begins:
 - T028 (curl-based quality verification) is a mandatory, explicit completion task per the constitution's Quality Verification section — do not treat it as informally satisfied by the automated test suite
 - Commit after each task or logical RED/GREEN group
 - Stop at either checkpoint to validate a story independently
+
+---
+
+## Phase 6: Convergence
+
+- [ ] T029 Fix quickstart.md's stale test-runner reference ("Runs the `node:test` suite" → Jest) and add a one-line note on reading the `jest --coverage` branch-coverage table in the Automated validation section, per plan.md (Phase 1 quickstart.md deliverable) (partial)
+- [ ] T030 Add a root `README.md` with project summary, prerequisites, `npm install`/`npm start` run instructions, `npm test` instructions including how to read the Jest branch-coverage table, and a pointer to `specs/001-create-short-link/quickstart.md` for full curl-based manual verification (user-requested; not traceable to spec/plan/tasks — no existing project-root README) (missing)
