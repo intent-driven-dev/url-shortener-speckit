@@ -70,7 +70,10 @@ curl -i http://localhost:3000/does-not-exist
 npm test
 ```
 
-Runs the `node:test` suite covering:
+Runs the Jest suite with coverage, covering:
 - Contract tests for both endpoints against `contracts/api.md`.
 - Integration tests for the full submit → resolve flow (both user stories).
 - Unit tests for domain rules (URL validation, self-reference detection, alias generation).
+
+The coverage report printed after the test run includes a `% Branch` column per file — the
+constitution's completion gate requires this to be 100% across `src/**`.
