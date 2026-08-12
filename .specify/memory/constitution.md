@@ -1,28 +1,22 @@
 <!--
 Sync Impact Report
-Version change: [none, template scaffold] → 1.0.0
-Modified principles: n/a (initial ratification)
+Version change: 1.0.0 → 1.1.0
+Modified principles: none (no existing principle renamed or redefined)
 Added sections:
-  - Core Principles: I. Valid Destinations Only
-  - Core Principles: II. No Chained or Looping Resolution (NON-NEGOTIABLE)
-  - Core Principles: III. Resolution Must Never Fail (NON-NEGOTIABLE)
-  - Core Principles: IV. Every Specification States Audience, Failure Path, and Scope
-  - Domain Vocabulary (glossary of short link, shortened URL, destination, original URL, alias, campaign)
-  - Primary Users & Product Scope
-  - Governance
+  - Architecture Constraints (new Section 2): runtime/language, link management vs. link
+    resolution module separation, layering (routes → services → domain → repositories),
+    external-dependency policy, JSON file storage, testing-tools exception, .gitignore
+    convention, and escalation-to-architect for unsettled design questions.
 Removed sections: none
-Deferred / TODO placeholders: RATIFICATION_DATE set to today's date (2026-08-12) as the
-  date of initial adoption — confirm with the user if an earlier informal adoption date
-  should be used instead.
+Deferred / TODO placeholders: none.
 Templates checked for alignment:
-  - .specify/templates/spec-template.md — not present/not modified in this pass; when
-    present, verify it requires "who it serves," failure-path behavior + user-facing
-    message, and an explicit out-of-scope section per Principle IV.
-  - .specify/templates/plan-template.md — not modified; no technical/architecture
-    principles were established in this pass (business context only), so no
-    plan-template gates depend on this amendment yet.
-  - .specify/templates/tasks-template.md — not modified; no changes required.
-Follow-up TODOs: none beyond the ratification-date confirmation above.
+  - .specify/templates/plan-template.md — not modified in this pass; Technical Context /
+    Constitution Check sections should be reviewed against the new Architecture
+    Constraints section on next plan run to confirm they surface module placement
+    (link management vs. link resolution) and layering as explicit gates.
+  - .specify/templates/spec-template.md — not modified; unaffected by this amendment.
+  - .specify/templates/tasks-template.md — not modified; unaffected by this amendment.
+Follow-up TODOs: none.
 -->
 
 # URL Shortener Constitution
@@ -90,10 +84,49 @@ MUST NOT introduce synonyms for the same concept.
 ## Primary Users & Product Scope
 
 The primary users are marketing teams creating and sharing campaign links. This constitution
-establishes business context only: the validity, resolution-integrity, and specification
-requirements above. Technical architecture, authentication/authorization, analytics, rate
-limiting, and other implementation concerns are explicitly out of scope for this document and are
-established in future feature specs and plans, subject to the principles above.
+establishes business context and the architecture constraints below. Authentication/authorization,
+analytics, rate limiting, and other implementation concerns not addressed here are established in
+future feature specs and plans, subject to the principles and constraints above and below.
+
+## Architecture Constraints
+
+The application is built with JavaScript and Node.js.
+
+**Module separation**: The system separates two distinct capabilities into their own modules:
+- **Link management** — creating and administering short links.
+- **Link resolution** — redirecting visitors to a short link's destination.
+
+A feature's design MUST place its work within the module (link management or link resolution) that
+capability belongs to, rather than blurring work across both. A change that appears to need both
+MUST be decomposed so each module's piece stays within its own boundary.
+
+**Layering**: Within each module:
+- Routes MUST stay thin — they parse input and delegate, and MUST NOT contain business logic.
+- Behavior MUST live in services.
+- Domain rules MUST stay framework-free — they MUST NOT depend on Node.js HTTP primitives, web
+  frameworks, or other delivery-mechanism concerns.
+- Data access MUST go through repositories — services and domain rules MUST NOT read or write
+  storage directly.
+
+**Dependencies and storage**: The application MUST avoid major external dependencies. It relies on
+built-in Node.js modules and JSON file storage accessed behind the repository layer. Testing tools
+are the accepted exception to the no-major-external-dependencies rule.
+
+**Repository hygiene**: The project follows standard `.gitignore` practices for Node.js projects
+(e.g., excluding `node_modules/`, log files, and local environment files from version control).
+
+**Interface contracts**: Interface contracts MUST be captured as simple markdown tables.
+
+**Rationale**: Separating link management from link resolution keeps the product's highest-risk
+capability — resolution, per Principle III — isolated from the more frequently changing
+administrative surface, so changes to one cannot accidentally destabilize the other. The
+routes/services/domain/repositories layering keeps domain rules testable and portable independent
+of any framework choice, and keeps storage swappable behind the repository boundary. Avoiding major
+external dependencies minimizes supply-chain and upgrade risk for a system whose failure mode
+(Principle III) is unrecoverable.
+
+**Escalation**: Design questions that these constraints do not settle MUST be clarified with the
+architect rather than decided unilaterally during a session.
 
 ## Governance
 
@@ -115,4 +148,4 @@ and MUST bump the version per the policy below.
 before implementation begins. Any deviation MUST be justified in writing in the relevant artifact
 or the work MUST be revised to comply.
 
-**Version**: 1.0.0 | **Ratified**: 2026-08-12 | **Last Amended**: 2026-08-12
+**Version**: 1.1.0 | **Ratified**: 2026-08-12 | **Last Amended**: 2026-08-12
