@@ -2,15 +2,14 @@
 
 This repository contains companion code for the book [_Spec-Driven Development: Engineering with Intent (Manning Publications)_](https://hubs.ly/Q04vSdlS0).
 
-<img width="1584" height="396" alt="linkedin profile banner" src="https://github.com/user-attachments/assets/6e80ce16-4daa-454d-a685-83ec0e0a146f" />
+<img width="1584" height="396" alt="Spec-Driven Development: Engineering with Intent — Manning book banner" src="https://github.com/user-attachments/assets/6e80ce16-4daa-454d-a685-83ec0e0a146f" />
 
-# Spec-Driven URL Shortener using SpecKit
---------------
-This repository contains the companion code for the Chapter 4 Spec-Driven Coding exercise in Intent-Driven Software Engineering book.
+## URL Shortener with Spec Kit
+
+This repository contains companion code for Chapter 4, demonstrating spec-driven development of a URL shortener using Spec Kit.
 
 If you want to follow the evolution of the exercise, inspect the commit history. Each iteration shows the SDD steps used and the code changes introduced in that step.
 
---------------
 
 A minimal short-link service: submit a destination URL and receive a short link on the product's
 domain, then have visitors redirected to that destination in a single hop.
